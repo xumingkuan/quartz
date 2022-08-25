@@ -36,7 +36,9 @@ void gen_ecc_set(const std::vector<GateType> &supported_gates,
                max_num_param_gates, &dataset1,      /*verify_equivalences=*/
                true, &equiv_set, unique_parameters, /*verbose=*/
                true, &verification_time);
-  dataset1.remove_singletons(&ctx);
+  // Comment this line to make the |pruning.json| the representative set
+  // Uncomment this line for better performance when generating the ECC set
+  // dataset1.remove_singletons(&ctx);
   dataset1.save_json(&ctx, file_prefix + "pruning_unverified.json");
 
   auto start2 = std::chrono::steady_clock::now();

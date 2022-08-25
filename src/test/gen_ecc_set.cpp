@@ -34,8 +34,13 @@ int main() {
   //         GateType::add}, file_prefix, true, q, 2, n);
   //   }
   // }
-  gen_ecc_set({GateType::t, GateType::tdg, GateType::h, GateType::x,
-               GateType::cx, GateType::add},
-              "3_2_5_", true, 3, 0, 5);
+  for (int n = 5; n <= 9; n++) {
+    std::string file_prefix = "test_";
+    file_prefix += std::to_string(n);
+    file_prefix += "_1_";
+    gen_ecc_set({GateType::h, GateType::s,
+                 GateType::sdg, GateType::t, GateType::tdg},
+                file_prefix, true, 1, 0, n);
+  }
   return 0;
 }
