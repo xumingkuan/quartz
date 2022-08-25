@@ -185,6 +185,28 @@ void Generator::dfs(int gate_idx, int max_num_gates,
   }
   for (const auto &idx : context->get_supported_quantum_gates()) {
     Gate *gate = context->get_gate(idx);
+    if (!dag->edges.empty()) {
+      if (gate->tp == GateType::s
+          && dag->edges.back()->gate->tp == GateType::sdg) {
+        continue;
+      }
+      if (gate->tp == GateType::t
+          && dag->edges.back()->gate->tp == GateType::tdg) {
+        continue;
+      }
+      if (gate->tp == GateType::sdg
+          && dag->edges.back()->gate->tp == GateType::s) {
+        continue;
+      }
+      if (gate->tp == GateType::tdg
+          && dag->edges.back()->gate->tp == GateType::t) {
+        continue;
+      }
+      if (gate->tp == GateType::h
+          && dag->edges.back()->gate->tp == GateType::h) {
+        continue;
+      }
+    }
     if (gate->get_num_qubits() == 0) {
       assert(false); // We only search for quantum gates here.
       if (!max_remaining_param_gates) {
