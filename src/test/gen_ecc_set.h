@@ -20,20 +20,22 @@ void gen_ecc_set(const std::vector<GateType> &supported_gates,
 
   Dataset dataset1;
 
-//  gen.generate(num_qubits, num_input_parameters, 1, max_num_param_gates,
-//               &dataset1,                           /*verify_equivalences=*/
-//               true, &equiv_set, unique_parameters, /*verbose=*/
-//               false);
-//  std::cout << "*** ch(" << file_prefix.substr(0, file_prefix.size() - 5)
-//            << ",q=" << file_prefix[file_prefix.size() - 2] << ") = "
-//            << dataset1.num_total_dags() - 1 /*exclude the empty circuit*/
-//            << std::endl;
-//  dataset1.clear();
+  gen.generate(num_qubits, num_input_parameters, 1, max_num_param_gates,
+               &dataset1,                           /*verify_equivalences=*/
+               true, &equiv_set, unique_parameters, /*verbose=*/
+               false);
+  std::cout << "*** ch(" << file_prefix.substr(0, file_prefix.size() - 5)
+            << ",q=" << file_prefix[file_prefix.size() - 2] << ") = "
+            << dataset1.num_total_dags() - 1 /*exclude the empty circuit*/
+            << std::endl;
+  dataset1.clear();
 
   auto start = std::chrono::steady_clock::now();
   decltype(start - start) verification_time{0};
-  gen.generate_dfs(num_qubits, num_input_parameters, max_num_quantum_gates,
-                   max_num_param_gates, dataset1, false, true);
+  gen.generate(num_qubits, num_input_parameters, max_num_quantum_gates,
+               max_num_param_gates, &dataset1,      /*verify_equivalences=*/
+               true, &equiv_set, unique_parameters, /*verbose=*/
+               true, &verification_time);
   // Comment this line to make the |pruning.json| the representative set
   // Uncomment this line for better performance when generating the ECC set
   // dataset1.remove_singletons(&ctx);
@@ -41,7 +43,7 @@ void gen_ecc_set(const std::vector<GateType> &supported_gates,
 
   auto start2 = std::chrono::steady_clock::now();
   system(("python src/python/verifier/verify_equivalences.py " + file_prefix +
-      "pruning_unverified.json " + file_prefix + "pruning.json -n")
+      "pruning_unverified.json " + file_prefix + "pruning.json")
              .c_str());
   auto end2 = std::chrono::steady_clock::now();
   verification_time += end2 - start2;
@@ -56,13 +58,10 @@ void gen_ecc_set(const std::vector<GateType> &supported_gates,
                 equiv_set.num_equivalence_classes()) *
                 2
             << std::endl;
-
-  equiv_set.sort();
+  start2 = std::chrono::steady_clock::now();
+  equiv_set.simplify(&ctx);
+  end2 = std::chrono::steady_clock::now();
   equiv_set.save_json(file_prefix + "complete_ECC_set.json");
-//  start2 = std::chrono::steady_clock::now();
-//  equiv_set.simplify(&ctx);
-//  end2 = std::chrono::steady_clock::now();
-//  equiv_set.save_json(file_prefix + "complete_ECC_set.json");
   auto end = std::chrono::steady_clock::now();
 
   std::cout << file_prefix.substr(0, file_prefix.size() - 1)
