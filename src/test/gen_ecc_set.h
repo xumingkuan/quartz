@@ -41,7 +41,7 @@ void gen_ecc_set(const std::vector<GateType> &supported_gates,
 
   auto start2 = std::chrono::steady_clock::now();
   system(("python src/python/verifier/verify_equivalences.py " + file_prefix +
-      "pruning_unverified.json " + file_prefix + "pruning.json")
+      "pruning_unverified.json " + file_prefix + "pruning.json -n")
              .c_str());
   auto end2 = std::chrono::steady_clock::now();
   verification_time += end2 - start2;

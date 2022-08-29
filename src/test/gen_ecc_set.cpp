@@ -34,8 +34,8 @@ int main() {
   //         GateType::add}, file_prefix, true, q, 2, n);
   //   }
   // }
-  for (int n = 5; n <= 9; n++) {
-    std::string file_prefix = "test_all_";
+  for (int n = 8; n <= 12; n++) {
+    std::string file_prefix = "test_all_unverified_";
     file_prefix += std::to_string(n);
     file_prefix += "_1_";
     gen_ecc_set({GateType::h, GateType::s,
