@@ -7,7 +7,7 @@
 
 using namespace quartz;
 
-static const std::string ecc_set_prefix = "test_5_1_";
+static const std::string ecc_set_prefix = "Nam_6_3_";
 static const std::string ecc_set_name =
     ecc_set_prefix + "complete_ECC_set.json";
 
@@ -16,17 +16,15 @@ static double geomean_gate_count = 1;
 static std::stringstream summary_result;
 
 void benchmark_nam(const std::string &circuit_name) {
-  std::string circuit_path = "circuit/" + circuit_name + ".qasm";
+  std::string circuit_path = "circuit/nam-benchmarks/" + circuit_name + ".qasm";
   // Construct contexts
-  Context src_ctx({GateType::h, GateType::s, GateType::sdg, GateType::t,
-                   GateType::tdg, GateType::input_qubit,
-                   GateType::input_param});
-  Context dst_ctx({GateType::h, GateType::s, GateType::sdg, GateType::t,
-                   GateType::tdg, GateType::input_qubit,
-                   GateType::input_param});
+  Context src_ctx({GateType::h, GateType::ccz, GateType::x, GateType::cx,
+                   GateType::input_qubit, GateType::input_param});
+  Context dst_ctx({GateType::h, GateType::x, GateType::rz, GateType::add,
+                   GateType::cx, GateType::input_qubit, GateType::input_param});
   auto union_ctx = union_contexts(&src_ctx, &dst_ctx);
 
-  // auto xfer_pair = GraphXfer::ccz_cx_rz_xfer(&union_ctx);
+  auto xfer_pair = GraphXfer::ccz_cx_rz_xfer(&union_ctx);
   // Load qasm file
   QASMParser qasm_parser(&src_ctx);
   DAG *dag = nullptr;
@@ -39,10 +37,9 @@ void benchmark_nam(const std::string &circuit_name) {
 
   auto start = std::chrono::steady_clock::now();
   // Greedy toffoli flip
-  // auto graph_before_search = graph.toffoli_flip_greedy(
-  //   GateType::rz, xfer_pair.first, xfer_pair.second);
+  auto graph_before_search = graph.toffoli_flip_greedy(
+      GateType::rz, xfer_pair.first, xfer_pair.second);
   //   graph_before_search->to_qasm(input_fn + ".toffoli_flip", false, false);
-  auto graph_before_search = &graph;
 
   auto end = std::chrono::steady_clock::now();
 
@@ -61,11 +58,11 @@ void benchmark_nam(const std::string &circuit_name) {
   start = std::chrono::steady_clock::now();
   // Optimization
   auto graph_after_search = graph_before_search->optimize(
-      &dst_ctx, ecc_set_name, circuit_name,    /*print_message=*/
-      true,                                    /*cost_function=*/
-      nullptr,                                 /*cost_upper_bound=*/
-      graph_before_search->total_cost() + 2.1, /*timeout=*/
-      20);
+      &dst_ctx, ecc_set_name, circuit_name, /*print_message=*/
+      true,                                 /*cost_function=*/
+      nullptr,                              /*cost_upper_bound=*/
+      -1,                                   /*timeout=*/
+      10);
   end = std::chrono::steady_clock::now();
 
   std::cout << circuit_name << " optimization result in "
@@ -88,27 +85,22 @@ void benchmark_nam(const std::string &circuit_name) {
       << ", cost = " << graph_after_search->total_cost() << std::endl;
 
   geomean_gate_count /= graph_after_search->gate_count();
-  graph_after_search->to_qasm("output.qasm", false, false);
+  // graph_after_search->to_qasm(output_fn, false, false);
 }
 
 int main() {
   if (!std::filesystem::exists(ecc_set_name)) {
     std::cout << "Generating ECC set..." << std::endl;
     gen_ecc_set(
-        {GateType::h, GateType::s, GateType::sdg, GateType::t, GateType::tdg},
-        ecc_set_prefix, true, false, 1, 0, 5);
-    //    gen_ecc_set(
-    //        {GateType::rz, GateType::h, GateType::cx, GateType::x,
-    //         GateType::add}, ecc_set_prefix, true, 3, 2, 4);
+        {GateType::rz, GateType::h, GateType::cx, GateType::x, GateType::add},
+        ecc_set_prefix, true, false, 3, 2, 6);
     std::cout << "ECC set generated." << std::endl;
   }
-  benchmark_nam("syn-rz1");
-  // Logs are printed to Nam_4_3_tof_3.log, Nam_4_3_barenco_tof_3.log, ...
-  //  benchmark_nam("tof_3");  // 45 gates
-  //  benchmark_nam("barenco_tof_3");  // 58 gates
-  //  benchmark_nam("mod_mult_55");  // 119 gates
-  //  benchmark_nam("vbe_adder_3");  // 150 gates
-  //  benchmark_nam("gf2^4_mult");  // 225 gates
+  // Logs are printed to Nam_6_3_barenco_tof_10.log, Nam_6_3_gf2^8_mult.log, ...
+  benchmark_nam("barenco_tof_10"); // 450 gates
+  benchmark_nam("gf2^8_mult");     // 883 gates
+  benchmark_nam("qcla_mod_7");     // 884 gates
+  benchmark_nam("adder_8");        // 900 gates
   if (num_benchmark > 0) {
     std::cout << "Summary:" << std::endl;
     std::cout << summary_result.str();

@@ -38,8 +38,8 @@ int main() {
     std::string file_prefix = "h_t_tdg_";
     file_prefix += std::to_string(n);
     file_prefix += "_1_";
-    gen_ecc_set({GateType::h, GateType::t, GateType::tdg}, file_prefix, true, 1,
-                0, n);
+    gen_ecc_set({GateType::h, GateType::t, GateType::tdg}, file_prefix, true,
+                true, 1, 0, n);
   }
   return 0;
 }
