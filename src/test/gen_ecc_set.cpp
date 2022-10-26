@@ -34,13 +34,13 @@ int main() {
   //         GateType::add}, file_prefix, true, q, 2, n);
   //   }
   // }
-  for (int n = 26; n <= 50; n += 2) {
-    std::string file_prefix = "test_";
+  for (int n = 6; n <= 9; n++) {
+    std::string file_prefix = "fast_";
     file_prefix += std::to_string(n);
-    file_prefix += "_1_";
+    file_prefix += "_3_";
     gen_ecc_set(
         {GateType::h, GateType::s, GateType::sdg, GateType::t, GateType::tdg},
-        file_prefix, true, true, 1, 0, n);
+        file_prefix, true, true, 3, 0, n);
   }
   return 0;
 }
