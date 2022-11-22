@@ -37,10 +37,10 @@ int main() {
   for (int n = 6; n <= 9; n++) {
     std::string file_prefix = "fast_";
     file_prefix += std::to_string(n);
-    file_prefix += "_3_";
-    gen_ecc_set(
-        {GateType::h, GateType::s, GateType::sdg, GateType::t, GateType::tdg},
-        file_prefix, true, true, 3, 0, n);
+    file_prefix += "_2_";
+    gen_ecc_set({GateType::h, GateType::s, GateType::sdg, GateType::t,
+                 GateType::tdg, GateType::cx},
+                file_prefix, true, true, 2, 0, n);
   }
   return 0;
 }
