@@ -1,0 +1,89 @@
+import math
+
+import matplotlib.pyplot as plt
+
+results = [{}, {}]  # heuristics, ilp
+num_local_qubits_start = 23
+num_of_num_local_qubits = {}
+circuit_name = None
+with open('../ilp_result.csv') as f:
+    for line in f:
+        numbers = line.split(',')[:-1]
+        if len(numbers) <= 1:
+            # circuit name line
+            circuit_name = line
+            continue
+        num_qubits = int(numbers[0].strip())
+        for i in range(2):
+            if num_qubits not in results[i].keys():
+                results[i][num_qubits] = {}
+        if num_qubits not in num_of_num_local_qubits.keys():
+            num_of_num_local_qubits[num_qubits] = len(numbers) - 1
+        elif num_of_num_local_qubits[num_qubits] != len(numbers) - 1:
+            # not finished, discard this line
+            continue
+        # heuristic results come first
+        if circuit_name not in results[0][num_qubits].keys():
+            results[0][num_qubits][circuit_name] = [
+                int(num.strip()) for num in numbers[1:]
+            ]
+        elif circuit_name not in results[1][num_qubits].keys():
+            results[1][num_qubits][circuit_name] = [
+                int(num.strip()) for num in numbers[1:]
+            ]
+        else:
+            assert False
+
+results_geomean = [
+    {
+        num_qubits: [
+            math.prod([numbers[i] for circuit_name, numbers in result.items()])
+            ** (1.0 / num_of_num_local_qubits[num_qubits])
+            for i in reversed(range(num_of_num_local_qubits[num_qubits]))
+        ]
+        for num_qubits, result in results_item.items()
+    }
+    for results_item in results
+]
+labels = ['Heuristics', 'QSim']
+
+for num_qubits in num_of_num_local_qubits.keys():
+    plt.cla()
+    plt.figure(constrained_layout=True)
+    for i in range(2):
+        plt.plot(
+            range(
+                num_local_qubits_start,
+                num_local_qubits_start + num_of_num_local_qubits[num_qubits],
+            ),
+            results_geomean[i][num_qubits],
+            ['x-', '.--'][i],
+            markersize=8,
+            label=labels[i],
+        )
+    plt.xlabel('Number of local qubits', fontsize=12, fontweight='bold')
+    plt.xticks(
+        range(
+            num_local_qubits_start,
+            num_local_qubits_start + num_of_num_local_qubits[num_qubits],
+        ),
+        fontsize=12,
+    )
+    plt.ylabel('Geomean of #stages', fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12)
+    plt.ylim(bottom=0)
+    fig = plt.gcf()
+    plt.legend(fontsize=12, ncol=2)
+    fig.set_size_inches(6, 2.7)
+    fig.savefig(f'ilp_plot_{num_qubits}.pdf', dpi=800)
+    print(
+        f'''
+\\begin{{figure}}[t]
+\\centering
+\\includegraphics[width=0.99\linewidth]{{figures/ilp_plot_{num_qubits}.pdf}}
+\\caption{{The geometric mean of the number of stages among 12 circuits with {num_qubits} qubits.}}
+\\label{{fig:ilp_{num_qubits}}}
+\\end{{figure}}
+'''
+    )
+    plt.close()
