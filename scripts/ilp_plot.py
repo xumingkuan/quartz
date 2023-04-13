@@ -38,14 +38,14 @@ results_geomean = [
     {
         num_qubits: [
             math.prod([numbers[i] for circuit_name, numbers in result.items()])
-            ** (1.0 / num_of_num_local_qubits[num_qubits])
+            ** (1.0 / len(result))
             for i in reversed(range(num_of_num_local_qubits[num_qubits]))
         ]
         for num_qubits, result in results_item.items()
     }
     for results_item in results
 ]
-labels = ['Heuristics', 'QSim']
+labels = ['SnuQS', 'QSim']
 
 for num_qubits in num_of_num_local_qubits.keys():
     plt.cla()
@@ -71,9 +71,9 @@ for num_qubits in num_of_num_local_qubits.keys():
     )
     plt.ylabel('Geomean of #stages', fontsize=12, fontweight='bold')
     plt.yticks(fontsize=12)
-    plt.ylim(bottom=0)
+    plt.ylim(bottom=0, top=4 if num_qubits == 31 else 5)
     fig = plt.gcf()
-    plt.legend(fontsize=12, ncol=2)
+    plt.legend(fontsize=12, ncol=2, loc='lower left')
     fig.set_size_inches(6, 2.7)
     fig.savefig(f'ilp_plot_{num_qubits}.pdf', dpi=800)
     print(
@@ -81,7 +81,7 @@ for num_qubits in num_of_num_local_qubits.keys():
 \\begin{{figure}}[t]
 \\centering
 \\includegraphics[width=0.99\linewidth]{{figures/ilp_plot_{num_qubits}.pdf}}
-\\caption{{The geometric mean of the number of stages among 12 circuits with {num_qubits} qubits.}}
+\\caption{{The geometric mean of the number of stages among 12 circuits in MQT Bench with {num_qubits} qubits.}}
 \\label{{fig:ilp_{num_qubits}}}
 \\end{{figure}}
 '''
