@@ -45,7 +45,7 @@ results_geomean = [
     }
     for results_item in results
 ]
-labels = ['SnuQS', 'TORQ']
+labels = ['Torque', 'SnuQS']
 
 for num_qubits in num_of_num_local_qubits.keys():
     plt.cla()
@@ -56,7 +56,7 @@ for num_qubits in num_of_num_local_qubits.keys():
                 num_local_qubits_start,
                 num_local_qubits_start + num_of_num_local_qubits[num_qubits],
             ),
-            results_geomean[i][num_qubits],
+            results_geomean[1 - i][num_qubits],
             ['x-', '.--'][i],
             markersize=8,
             label=labels[i],
@@ -74,8 +74,8 @@ for num_qubits in num_of_num_local_qubits.keys():
     plt.ylim(bottom=0, top=4 if num_qubits == 31 else 5)
     fig = plt.gcf()
     legend = plt.legend(fontsize=12, ncol=2, loc='lower left')
-    text = legend.get_texts()[1]
-    text.set_fontfamily('Sans Serif')
+    # text = legend.get_texts()[1]
+    # text.set_fontfamily('Sans Serif')
     fig.set_size_inches(6, 2.7)
     fig.savefig(f'ilp_plot_{num_qubits}.pdf', dpi=800)
     print(
