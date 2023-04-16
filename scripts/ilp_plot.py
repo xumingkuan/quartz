@@ -45,7 +45,7 @@ results_geomean = [
     }
     for results_item in results
 ]
-labels = ['SnuQS', 'QSim']
+labels = ['SnuQS', 'SQA']
 
 for num_qubits in num_of_num_local_qubits.keys():
     plt.cla()
