@@ -141,17 +141,11 @@ int main() {
                GateType::x, GateType::ry, GateType::u2, GateType::u3,
                GateType::cx, GateType::cz, GateType::cp, GateType::swap});
   std::vector<std::string> circuit_names = {"ae",
-                                            "dj",
                                             "ghz",
                                             "graphstate",
                                             "qft",
-                                            "qftentangled",
                                             "qpeexact",
-                                            "qpeinexact",
-                                            "realamprandom",
-                                            "su2random",
-                                            "twolocalrandom",
-                                            "wstate"};
+                                            "su2random"};
   // 31 or 42 total qubits, 23-42 local qubits
   std::vector<int> num_qubits = {31, 42};
   std::vector<int> num_local_qubits;
